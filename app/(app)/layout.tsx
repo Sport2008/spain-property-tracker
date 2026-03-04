@@ -17,7 +17,7 @@ export default async function AppLayout({
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-sand-50">
       <main className="flex-1 pb-20 max-w-lg mx-auto w-full">
         {children}
       </main>

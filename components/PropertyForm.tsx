@@ -5,9 +5,19 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { PropertyWithPhotos } from "@/lib/types";
 import { PROPERTY_STATUSES } from "@/lib/types";
+import type { PropertyStatus } from "@/lib/types";
 import { createProperty, updateProperty } from "@/actions/properties";
+
 const LocationPicker = dynamic(() => import("./LocationPicker"), { ssr: false });
 const PhotoUploader = dynamic(() => import("./PhotoUploader"), { ssr: false });
+
+const statusLabels: Record<PropertyStatus, string> = {
+  New:              "Nieuw",
+  Interested:       "Interessant",
+  "Second viewing": "Tweede bezichtiging",
+  Offer:            "Bod",
+  Rejected:         "Afgewezen",
+};
 
 interface Props {
   property?: PropertyWithPhotos;
@@ -68,46 +78,46 @@ export default function PropertyForm({ property, userId }: Props) {
   }
 
   const inputClass =
-    "w-full rounded-xl border border-gray-200 px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white";
-  const labelClass = "block text-sm font-medium text-gray-700 mb-1";
+    "w-full rounded-xl border border-stone-200 bg-sand-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-terra-400 focus:border-transparent transition";
+  const labelClass = "block text-sm font-medium text-stone-700 mb-1.5";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 px-4 py-4">
-      {/* Title */}
+    <form onSubmit={handleSubmit} className="space-y-6 px-4 py-5">
+      {/* Naam */}
       <div>
         <label htmlFor="title" className={labelClass}>
-          Title <span className="text-red-500">*</span>
+          Naam <span className="text-rose-400">*</span>
         </label>
         <input
           id="title"
           name="title"
           required
           defaultValue={property?.title}
-          placeholder="e.g. Townhouse near Estepona"
+          placeholder="bijv. Herenhuis bij Estepona"
           className={inputClass}
         />
       </div>
 
-      {/* Area */}
+      {/* Stad / Regio */}
       <div>
         <label htmlFor="area" className={labelClass}>
-          City / Area <span className="text-red-500">*</span>
+          Stad / Regio <span className="text-rose-400">*</span>
         </label>
         <input
           id="area"
           name="area"
           required
           defaultValue={property?.area}
-          placeholder="e.g. Estepona / Javea"
+          placeholder="bijv. Estepona / Javea"
           className={inputClass}
         />
       </div>
 
-      {/* Price + Status side by side */}
+      {/* Vraagprijs + Status */}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label htmlFor="asking_price" className={labelClass}>
-            Asking price (€)
+            Vraagprijs (€)
           </label>
           <input
             id="asking_price"
@@ -132,17 +142,17 @@ export default function PropertyForm({ property, userId }: Props) {
           >
             {PROPERTY_STATUSES.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {statusLabels[s]}
               </option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* Viewed date */}
+      {/* Bezichtigd op */}
       <div>
         <label htmlFor="viewed_date" className={labelClass}>
-          Date viewed
+          Bezichtigd op
         </label>
         <input
           id="viewed_date"
@@ -153,26 +163,26 @@ export default function PropertyForm({ property, userId }: Props) {
         />
       </div>
 
-      {/* Notes */}
+      {/* Notities */}
       <div>
         <label htmlFor="notes" className={labelClass}>
-          Notes
+          Notities
         </label>
         <textarea
           id="notes"
           name="notes"
           rows={4}
           defaultValue={property?.notes ?? ""}
-          placeholder="First impressions, pros/cons…"
+          placeholder="Eerste indruk, voor- en nadelen…"
           className={`${inputClass} resize-none`}
         />
       </div>
 
-      {/* Contact info */}
+      {/* Contactpersoon + Makelaar */}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label htmlFor="contact_name" className={labelClass}>
-            Contact
+            Contactpersoon
           </label>
           <input
             id="contact_name"
@@ -184,7 +194,7 @@ export default function PropertyForm({ property, userId }: Props) {
         </div>
         <div>
           <label htmlFor="agency" className={labelClass}>
-            Agency
+            Makelaar
           </label>
           <input
             id="agency"
@@ -196,10 +206,10 @@ export default function PropertyForm({ property, userId }: Props) {
         </div>
       </div>
 
-      {/* URL */}
+      {/* Link naar advertentie */}
       <div>
         <label htmlFor="url" className={labelClass}>
-          Listing URL
+          Link naar advertentie
         </label>
         <input
           id="url"
@@ -211,9 +221,9 @@ export default function PropertyForm({ property, userId }: Props) {
         />
       </div>
 
-      {/* Location */}
+      {/* Locatie */}
       <div>
-        <label className={labelClass}>Location</label>
+        <label className={labelClass}>Locatie</label>
         <LocationPicker
           initialLat={lat}
           initialLng={lng}
@@ -223,21 +233,21 @@ export default function PropertyForm({ property, userId }: Props) {
           <input
             name="address_label"
             defaultValue={property?.address_label ?? ""}
-            placeholder="Address label (optional)"
+            placeholder="Adresomschrijving (optioneel)"
             className={`${inputClass} text-sm`}
           />
         </div>
         {lat && lng && (
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-stone-400 mt-1.5">
             {lat.toFixed(5)}, {lng.toFixed(5)}
           </p>
         )}
       </div>
 
-      {/* Photos (only available when editing an existing property) */}
+      {/* Foto's */}
       {property && (
         <div>
-          <label className={labelClass}>Photos</label>
+          <label className={labelClass}>Foto&apos;s</label>
           <PhotoUploader
             propertyId={property.id}
             userId={userId}
@@ -247,13 +257,13 @@ export default function PropertyForm({ property, userId }: Props) {
       )}
 
       {!property && (
-        <p className="text-xs text-gray-400 bg-gray-50 rounded-xl p-3">
-          You can add photos after saving the property.
+        <p className="text-xs text-stone-400 bg-sand-100 rounded-xl p-3.5 leading-relaxed">
+          Je kunt foto&apos;s toevoegen nadat je het huis hebt opgeslagen.
         </p>
       )}
 
       {error && (
-        <div className="bg-red-50 text-red-700 text-sm rounded-xl px-4 py-3">
+        <div className="bg-rose-50 text-rose-700 text-sm rounded-xl px-4 py-3 border border-rose-100">
           {error}
         </div>
       )}
@@ -261,13 +271,13 @@ export default function PropertyForm({ property, userId }: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl text-base transition disabled:opacity-60"
+        className="w-full bg-terra-500 hover:bg-terra-600 text-white font-semibold py-4 rounded-xl text-base transition-colors disabled:opacity-60"
       >
         {isPending
-          ? "Saving…"
+          ? "Opslaan…"
           : property
-          ? "Save changes"
-          : "Add property"}
+          ? "Wijzigingen opslaan"
+          : "Huis toevoegen"}
       </button>
     </form>
   );

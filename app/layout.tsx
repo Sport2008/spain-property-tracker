@@ -10,7 +10,7 @@ const geistSans = localFont({
 
 export const metadata: Metadata = {
   title: "Spanjehuizen",
-  description: "Track properties you view in Spain",
+  description: "Houd huizen bij die je in Spanje bekijkt",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f97316",
+  themeColor: "#c2714f",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -34,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="nl">
       <body className={`${geistSans.variable} antialiased font-[family-name:var(--font-geist-sans)]`}>
         {children}
       </body>

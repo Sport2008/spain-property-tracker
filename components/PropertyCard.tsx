@@ -40,9 +40,9 @@ export default async function PropertyCard({ property, coverPhoto }: Props) {
 
   return (
     <Link href={`/properties/${property.id}`}>
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm active:scale-[0.98] transition-transform">
+      <div className="bg-white rounded-2xl overflow-hidden shadow-warm active:scale-[0.98] transition-transform">
         {/* Photo */}
-        <div className="relative w-full h-44 bg-gray-100">
+        <div className="relative w-full h-44 bg-sand-100">
           {photoUrl ? (
             <Image
               src={photoUrl}
@@ -52,7 +52,7 @@ export default async function PropertyCard({ property, coverPhoto }: Props) {
               sizes="(max-width: 512px) 100vw, 512px"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-300">
+            <div className="w-full h-full flex items-center justify-center text-stone-300">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="w-12 h-12">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
                 <polyline strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} points="9 22 9 12 15 12 15 22" />
@@ -62,25 +62,25 @@ export default async function PropertyCard({ property, coverPhoto }: Props) {
         </div>
 
         {/* Info */}
-        <div className="p-4">
+        <div className="px-4 py-4">
           <div className="flex items-start justify-between gap-2">
-            <h2 className="font-semibold text-gray-900 text-base leading-snug line-clamp-2 flex-1">
+            <h2 className="font-semibold text-stone-900 text-base leading-snug line-clamp-2 flex-1">
               {property.title}
             </h2>
             <StatusBadge status={property.status} />
           </div>
 
-          <p className="text-sm text-gray-500 mt-1">{property.area}</p>
+          <p className="text-sm text-stone-500 mt-1">{property.area}</p>
 
           <div className="flex items-center justify-between mt-3">
             {property.asking_price ? (
-              <span className="text-orange-600 font-bold text-base">
+              <span className="text-terra-600 font-bold text-base">
                 {formatPrice(property.asking_price)}
               </span>
             ) : (
-              <span className="text-gray-300 text-sm">Price n/a</span>
+              <span className="text-stone-300 text-sm">Prijs onbekend</span>
             )}
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-stone-400">
               {formatDate(property.viewed_date ?? property.created_at)}
             </span>
           </div>

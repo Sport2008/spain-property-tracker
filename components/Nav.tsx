@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const tabs = [
   {
     href: "/properties",
-    label: "List",
+    label: "Lijst",
     icon: (active: boolean) => (
       <svg
         viewBox="0 0 24 24"
@@ -21,9 +21,9 @@ const tabs = [
   },
   {
     href: "/properties/new",
-    label: "Add",
+    label: "Toevoegen",
     icon: () => (
-      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-orange-500 text-white -mt-5 shadow-lg">
+      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-terra-500 text-white -mt-5 shadow-warm-md">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-6 h-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
         </svg>
@@ -32,7 +32,7 @@ const tabs = [
   },
   {
     href: "/map",
-    label: "Map",
+    label: "Kaart",
     icon: (active: boolean) => (
       <svg
         viewBox="0 0 24 24"
@@ -55,7 +55,7 @@ export default function Nav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 z-50">
       <div className="max-w-lg mx-auto flex items-center justify-around h-16 px-2">
         {tabs.map((tab) => {
           const isAdd = tab.href === "/properties/new";
@@ -68,7 +68,7 @@ export default function Nav() {
               key={tab.href}
               href={tab.href}
               className={`flex flex-col items-center justify-center min-w-[60px] py-1 ${
-                isAdd ? "" : active ? "text-orange-500" : "text-gray-400"
+                isAdd ? "" : active ? "text-terra-500" : "text-stone-400"
               }`}
             >
               {tab.icon(active)}

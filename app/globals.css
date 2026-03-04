@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  --background: #faf8f5;
+  --foreground: #1c1917;
 }
 
 html,
@@ -22,9 +22,9 @@ body {
 
 /* Mapbox popup tweaks */
 .mapboxgl-popup-content {
-  border-radius: 12px !important;
-  padding: 10px 14px !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+  border-radius: 14px !important;
+  padding: 12px 16px !important;
+  box-shadow: 0 4px 20px rgba(101, 76, 55, 0.14) !important;
 }
 
 .mapboxgl-popup-tip {

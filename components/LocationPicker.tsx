@@ -35,7 +35,7 @@ export default function LocationPicker({ initialLat, initialLng, onChange }: Pro
     mapRef.current = map;
 
     if (initialLat && initialLng) {
-      const marker = new mapboxgl.Marker({ color: "#f97316", draggable: true })
+      const marker = new mapboxgl.Marker({ color: "#c2714f", draggable: true })
         .setLngLat([initialLng, initialLat])
         .addTo(map);
 
@@ -53,7 +53,7 @@ export default function LocationPicker({ initialLat, initialLng, onChange }: Pro
       if (markerRef.current) {
         markerRef.current.setLngLat([lng, lat]);
       } else {
-        const marker = new mapboxgl.Marker({ color: "#f97316", draggable: true })
+        const marker = new mapboxgl.Marker({ color: "#c2714f", draggable: true })
           .setLngLat([lng, lat])
           .addTo(map);
 
@@ -87,7 +87,7 @@ export default function LocationPicker({ initialLat, initialLng, onChange }: Pro
         if (markerRef.current) {
           markerRef.current.setLngLat([lng, lat]);
         } else {
-          const marker = new mapboxgl.Marker({ color: "#f97316", draggable: true })
+          const marker = new mapboxgl.Marker({ color: "#c2714f", draggable: true })
             .setLngLat([lng, lat])
             .addTo(map);
 
@@ -121,32 +121,32 @@ export default function LocationPicker({ initialLat, initialLng, onChange }: Pro
     <div className="space-y-2">
       <div
         ref={mapContainerRef}
-        className="w-full h-56 rounded-xl overflow-hidden border border-gray-200"
+        className="w-full h-56 rounded-xl overflow-hidden border border-stone-200"
       />
       <div className="flex gap-2">
         <button
           type="button"
           onClick={useCurrentLocation}
           disabled={locating}
-          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 active:bg-gray-50 disabled:opacity-60"
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-stone-200 bg-white text-sm font-medium text-stone-700 active:bg-sand-50 disabled:opacity-60 transition-colors"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
             <circle cx="12" cy="12" r="3" />
             <path strokeLinecap="round" d="M12 2v3m0 14v3M2 12h3m14 0h3" />
           </svg>
-          {locating ? "Locating…" : "Use my location"}
+          {locating ? "Locatie bepalen…" : "Gebruik mijn locatie"}
         </button>
         {hasLocation && (
           <button
             type="button"
             onClick={clearLocation}
-            className="px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium text-red-500 active:bg-gray-50"
+            className="px-3 py-2.5 rounded-xl border border-stone-200 bg-white text-sm font-medium text-rose-500 active:bg-sand-50 transition-colors"
           >
-            Clear
+            Wissen
           </button>
         )}
       </div>
-      <p className="text-xs text-gray-400">Tap the map to set a pin, or drag the pin to adjust.</p>
+      <p className="text-xs text-stone-400">Tik op de kaart om een pin te plaatsen, of sleep de pin om te verplaatsen.</p>
     </div>
   );
 }
