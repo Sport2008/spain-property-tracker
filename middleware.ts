@@ -25,23 +25,10 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Refresh session — required for Server Components to have up-to-date session
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
-
-  // Redirect unauthenticated users away from protected routes
-  if (
-    !user &&
-    !pathname.startsWith("/auth") &&
-    pathname !== "/"
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/auth/login";
-    return NextResponse.redirect(url);
-  }
+  // Refresh session tokens so Server Components always have up-to-date cookies.
+  // Route protection is handled by app/(app)/layout.tsx (server-side) and
+  // app/auth/login/page.tsx (client-side). No redirects here to avoid loops.
+  await supabase.auth.getUser();
 
   return supabaseResponse;
 }
