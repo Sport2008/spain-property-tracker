@@ -1,16 +1,89 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+const LAST_EMAIL_KEY = "last_email";
+const LAST_EMAIL_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
+const COOLDOWN_SECONDS = 30;
+
+type PageState = "checking" | "login" | "sent";
+
 export default function LoginPage() {
+  const router = useRouter();
+  const [pageState, setPageState] = useState<PageState>("checking");
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // On mount: check for an existing session and redirect immediately if found.
+  // Also pre-fill the last used email address if it is less than 14 days old.
+  useEffect(() => {
+    const supabase = createClient();
+
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.replace("/properties");
+        return;
+      }
+
+      // Pre-fill email from localStorage if fresh enough
+      try {
+        const raw = localStorage.getItem(LAST_EMAIL_KEY);
+        if (raw) {
+          const { value, ts } = JSON.parse(raw) as { value: string; ts: number };
+          if (Date.now() - ts < LAST_EMAIL_MAX_AGE_MS) {
+            setEmail(value);
+          }
+        }
+      } catch {
+        // ignore parse errors
+      }
+
+      setPageState("login");
+    }
+
+    checkSession();
+
+    // Also listen for auth state changes (e.g. magic link opens in same tab)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "SIGNED_IN" && session) {
+          router.replace("/properties");
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [router]);
+
+  // Clean up cooldown interval on unmount
+  useEffect(() => {
+    return () => {
+      if (cooldownRef.current) clearInterval(cooldownRef.current);
+    };
+  }, []);
+
+  function startCooldown() {
+    setCooldown(COOLDOWN_SECONDS);
+    cooldownRef.current = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(cooldownRef.current!);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (cooldown > 0) return;
     setLoading(true);
     setError(null);
 
@@ -24,16 +97,32 @@ export default function LoginPage() {
 
     if (error) {
       setError(error.message);
-      setLoading(false);
     } else {
-      setSubmitted(true);
-      setLoading(false);
+      // Persist the email so we can pre-fill it next time
+      try {
+        localStorage.setItem(LAST_EMAIL_KEY, JSON.stringify({ value: email, ts: Date.now() }));
+      } catch {
+        // ignore storage errors
+      }
+      setPageState("sent");
+      startCooldown();
     }
+    setLoading(false);
+  }
+
+  if (pageState === "checking") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-sand-50 px-4">
+        <div className="text-5xl mb-4">🏡</div>
+        <h1 className="text-xl font-bold text-stone-900 tracking-tight mb-6">Spanjehuizen</h1>
+        <p className="text-stone-500 text-sm">Laden...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-sand-50 px-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen flex flex-col justify-center bg-sand-50 px-5 py-safe-or-8">
+      <div className="w-full max-w-sm mx-auto">
         {/* Branding */}
         <div className="text-center mb-10">
           <div className="text-5xl mb-4">🏡</div>
@@ -41,8 +130,8 @@ export default function LoginPage() {
           <p className="text-stone-500 mt-2 text-sm">Houd huizen bij die je in Spanje bekijkt</p>
         </div>
 
-        {submitted ? (
-          <div className="bg-white rounded-2xl shadow-warm p-7 text-center">
+        {pageState === "sent" ? (
+          <div className="bg-white rounded-2xl shadow-warm p-8 text-center">
             <div className="text-4xl mb-4">📬</div>
             <h2 className="text-lg font-semibold text-stone-900 mb-2">Controleer je e-mail</h2>
             <p className="text-stone-500 text-sm leading-relaxed">
@@ -51,10 +140,17 @@ export default function LoginPage() {
               Klik erop om in te loggen.
             </p>
             <button
-              onClick={() => { setSubmitted(false); setEmail(""); }}
-              className="mt-5 text-sm text-terra-600 underline underline-offset-2"
+              onClick={() => {
+                if (cooldown === 0) {
+                  setPageState("login");
+                }
+              }}
+              disabled={cooldown > 0}
+              className="mt-6 text-sm text-terra-600 underline underline-offset-2 disabled:opacity-50 disabled:no-underline"
             >
-              Probeer een ander e-mailadres
+              {cooldown > 0
+                ? `Opnieuw versturen over ${cooldown}s`
+                : "Probeer een ander e-mailadres"}
             </button>
           </div>
         ) : (
@@ -68,10 +164,11 @@ export default function LoginPage() {
                 type="email"
                 required
                 autoComplete="email"
+                inputMode="email"
                 placeholder="jij@voorbeeld.nl"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-stone-200 bg-sand-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-terra-400 focus:border-transparent transition"
+                className="w-full rounded-xl border border-stone-200 bg-sand-50 px-4 py-3.5 text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-terra-400 focus:border-transparent transition"
               />
             </div>
 
@@ -81,8 +178,8 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-terra-500 hover:bg-terra-600 text-white font-semibold py-3.5 rounded-xl text-base transition-colors disabled:opacity-60"
+              disabled={loading || cooldown > 0}
+              className="w-full bg-terra-500 hover:bg-terra-600 active:bg-terra-700 text-white font-semibold py-4 rounded-xl text-base transition-colors disabled:opacity-60"
             >
               {loading ? "Bezig met versturen…" : "Stuur inloglink"}
             </button>
